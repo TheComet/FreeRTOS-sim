@@ -11,10 +11,12 @@ void vPortStartScheduler(void);
 
 StackType_t *pxPortInitialiseStack(StackType_t *pxTopOfStack,
                                    TaskFunction_t pxCode, void *pvParameters) {
-  /* Set up so we "return" to the task function */
+  /* TaskFunc(void* pvParameters) */
   *--pxTopOfStack = (StackType_t)pvParameters; /* Task argument 1 */
   *--pxTopOfStack = 0x00000000;                /* return address to scheduler */
-  *--pxTopOfStack = (StackType_t)pxCode;       /* return address to task */
+
+  /* Set up so we "return" to the task function */
+  *--pxTopOfStack = (StackType_t)pxCode; /* return address to task */
 
   /* pusha instruction stores all GPR's in one go */
   StackType_t *pxStack = pxTopOfStack;
