@@ -4,7 +4,7 @@ extern pxCurrentTCB
 
 global vPortTickISR
 global vPortYield
-global vPortStartScheduler
+global xPortStartScheduler
 
 %macro SAVE_CONTEXT 0
     pusha                      ; Save all general-purpose registers, including
@@ -41,8 +41,7 @@ vPortYield:
     ret
 
 align 4
-vPortStartScheduler:
+xPortStartScheduler:
     ; TODO: Initialize timer here
     RESTORE_CONTEXT            ; Restore context of the first task
     ret
-

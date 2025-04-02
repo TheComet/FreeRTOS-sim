@@ -1,5 +1,5 @@
 {
-  "version": 10,
+  "version": 8,
   "cmakeMinimumRequired": {
     "major": 3,
     "minor": 23,
@@ -9,10 +9,18 @@
     {
       "name": "default",
       "displayName": "Default Config",
-      "description": "Default build using Ninja generator",
-      "generator": "Ninja",
       "binaryDir": "${sourceDir}/build-Debug",
-      "toolchainFile": "${sourceDir}/x86-gnu-linux.cmake"
+      "toolchainFile": "${sourceDir}/x86-gnu-linux.cmake",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "CMAKE_BUILD_TYPE": {
+          "type": "STRING",
+          "value": "Debug"
+        }
+      }
     }
   ],
   "buildPresets": [

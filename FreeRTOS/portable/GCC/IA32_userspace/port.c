@@ -1,45 +1,16 @@
-#include <stdint.h>
-#include <stdio.h>
+#include "FreeRTOS.h"
+#include "task.h"
+#include <unistd.h>
 
-typedef uint32_t StackType_t;
-struct TaskControlBlock {
-  volatile StackType_t *pxTopOfStack;
-};
-
-volatile struct TaskControlBlock *volatile pxCurrentTCB;
-
-struct TaskControlBlock tcb1;
-struct TaskControlBlock tcb2;
-struct TaskControlBlock tcb3;
+typedef void TCB_t;
+extern volatile TCB_t *volatile pxCurrentTCB;
 
 void vPortTickISR(void);
 void vPortYield(void);
 void vPortStartScheduler(void);
 
-static void instruction_callback(void) {
-  static int mclk;
-  static int aclk;
-  if (mclk++ % 8 == 0) {
-    aclk++;
-    vPortTickISR();
-  }
-}
-
-void vTaskSwitchContext(void) {
-  if (pxCurrentTCB == &tcb1)
-    pxCurrentTCB = &tcb2;
-  else if (pxCurrentTCB == &tcb2)
-    pxCurrentTCB = &tcb3;
-  else
-    pxCurrentTCB = &tcb1;
-}
-
-int xTaskIncrementTick(void) { return 1; }
-
-static StackType_t *InitStack(StackType_t *pxStackMem, uint32_t uStackMemSize,
-                              void (*pxCode)(void *), void *pvParameters) {
-  StackType_t *pxTopOfStack = pxStackMem + uStackMemSize;
-
+StackType_t *pxPortInitialiseStack(StackType_t *pxTopOfStack,
+                                   TaskFunction_t pxCode, void *pvParameters) {
   /* Set up so we "return" to the task function */
   *--pxTopOfStack = (StackType_t)pvParameters; /* Task argument 1 */
   *--pxTopOfStack = 0x00000000;                /* return address to scheduler */
@@ -62,41 +33,4 @@ static StackType_t *InitStack(StackType_t *pxStackMem, uint32_t uStackMemSize,
   return pxTopOfStack;
 }
 
-static StackType_t task1_stack[1024];
-static void Task1(void *pvParameters) {
-  int stackvar = 50;
-  while (1) {
-    instruction_callback();
-    printf("Task1: %d\n", stackvar);
-    vPortYield();
-  }
-}
-
-static StackType_t task2_stack[1024];
-static void Task2(void *pvParameters) {
-  int stackvar = 80;
-  while (1) {
-    instruction_callback();
-    printf("Task2: %d\n", stackvar);
-    vPortYield();
-  }
-}
-
-static StackType_t task3_stack[1024];
-static void Task3(void *pvParameters) {
-  int stackvar = *(int *)pvParameters;
-  while (1) {
-    instruction_callback();
-    printf("Task3: %d\n", stackvar);
-  }
-}
-
-int main(int argc, char *argv[]) {
-  int value = 42;
-  tcb1.pxTopOfStack = InitStack(task1_stack, 1024, Task1, NULL);
-  tcb2.pxTopOfStack = InitStack(task2_stack, 1024, Task2, NULL);
-  tcb3.pxTopOfStack = InitStack(task3_stack, 1024, Task3, &value);
-  pxCurrentTCB = &tcb3;
-  vPortStartScheduler();
-  return 0;
-}
+void vPortEndScheduler(void) { _exit(1); }
