@@ -44,5 +44,12 @@ function (instrument_instruction_callback target out_objs)
     list (APPEND ${out_objs} ${_outfile}.o)
   endforeach ()
   set (${out_objs} ${${out_objs}} PARENT_SCOPE)
+
+  #add_library (${out_target} OBJECT IMPORTED)
+  #set_target_properties (${out_target} PROPERTIES IMPORTED_OBJECTS ${out_objs})
+  #target_include_directories (${out_target} INTERFACE $<TARGET_PROPERTY:${target},INCLUDE_DIRECTORIES>)
+  #target_compile_definitions (${out_target} INTERFACE $<TARGET_PROPERTY:${target},COMPILE_DEFINITIONS>)
+  #target_compile_options (${out_target} INTERFACE $<TARGET_PROPERTY:${target},COMPILE_OPTIONS>)
+  #target_link_libraries (${out_target} INTERFACE $<TARGET_PROPERTY:${target},LINK_LIBRARIES>)
 endfunction ()
 

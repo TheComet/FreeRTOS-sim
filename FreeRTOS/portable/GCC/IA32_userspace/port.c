@@ -1,6 +1,8 @@
 #include "FreeRTOS.h"
 #include "portable.h"
 
+volatile uint16_t usCriticalNesting = 0;
+
 StackType_t *pxPortInitialiseStack(StackType_t *pxTopOfStack,
                                    TaskFunction_t pxCode, void *pvParameters) {
   /* TaskFunc(void* pvParameters) */

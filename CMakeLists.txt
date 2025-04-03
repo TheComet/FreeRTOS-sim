@@ -5,19 +5,12 @@ project (FreeRTOS-Sim
 
 list (APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake/Modules")
 
-add_library (Mobius OBJECT
-  "App/Src/Task1.c"
-  "App/Src/Task2.c")
-target_include_directories (Mobius
-  PRIVATE
-    "FreeRTOS/portable/GCC/IA32_userspace"
-    "FreeRTOS/include"
-    "App/Include")
+add_library (Hardware OBJECT
+  "Hardware/Src/Hardware.c"
+  "Hardware/Include/Hardware/Hardware.h")
+target_include_directories (Hardware PUBLIC "Hardware/Include")
 
-include (InstrumentInstructionCallback)
-instrument_instruction_callback (Mobius Mobius_OBJS)
-
-add_executable (FreeRTOS-Sim
+add_library (FreeRTOS OBJECT
   "FreeRTOS/croutine.c"
   "FreeRTOS/event_groups.c"
   "FreeRTOS/list.c"
@@ -29,22 +22,40 @@ add_executable (FreeRTOS-Sim
   "FreeRTOS/portable/GCC/IA32_userspace/port.c"
   "FreeRTOS/portable/GCC/IA32_userspace/port.asm"
 
-  "FreeRTOS/portable/MemMang/heap_4.c"
-
-  ${Mobius_OBJS}
-
-  "App/Src/instruction_callback.c"
-  "App/Src/instruction_callback.asm"
-  "App/Src/main.c")
-target_include_directories (FreeRTOS-Sim
+  "FreeRTOS/portable/MemMang/heap_4.c")
+target_include_directories (FreeRTOS
+  PUBLIC
+    "FreeRTOS/portable/GCC/IA32_userspace"
+    "FreeRTOS/include"
   PRIVATE
+    "App/Include")
+target_link_libraries (FreeRTOS PUBLIC Hardware)
+target_link_options (FreeRTOS PRIVATE -z noexecstack)
+
+add_library (App OBJECT
+  "App/Src/Init.c"
+  "App/Src/Task1.c"
+  "App/Src/Task2.c")
+target_include_directories (App
+  PRIVATE
+    "Hardware/Include"
     "FreeRTOS/portable/GCC/IA32_userspace"
     "FreeRTOS/include"
     "App/Include")
-set_source_files_properties (
-  "FreeRTOS/portable/GCC/IA32_userspace/port.c"
-  PROPERTIES COMPILE_FLAGS -mgeneral-regs-only)  # __attribute((no_caller_saved_registers))
-target_link_options (FreeRTOS-Sim
+
+include (InstrumentInstructionCallback)
+instrument_instruction_callback (App App_INSTRUMENTED_OBJS)
+
+add_executable (Harness
+  ${App_INSTRUMENTED_OBJS}
+  $<TARGET_OBJECTS:FreeRTOS>
+  $<TARGET_OBJECTS:Hardware>
+  "Harness/Src/InstructionCallback.c"
+  "Harness/Src/InstructionCallback.asm"
+  "Harness/Src/main.c")
+target_include_directories (Harness
   PRIVATE
-    -z noexecstack)
+    $<TARGET_PROPERTY:Hardware,INCLUDE_DIRECTORIES>
+    $<TARGET_PROPERTY:App,INCLUDE_DIRECTORIES>)
+target_link_options (Harness PRIVATE -z noexecstack)
 

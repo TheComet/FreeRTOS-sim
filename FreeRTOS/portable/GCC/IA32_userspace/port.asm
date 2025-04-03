@@ -13,8 +13,8 @@ global xPortStartScheduler
     mov    eax, [pxCurrentTCB] ; TCB->pxTopOfStack = esp 
     mov    [eax], esp          ; (store stack pointer)
 %endmacro
-
 %macro RESTORE_CONTEXT 0
+
     mov    eax, [pxCurrentTCB] ; esp = TCB->pxTopOfStack
     mov    esp, [eax]          ; (restore stack pointer)
     popfd                      ; Restore flags register
@@ -39,6 +39,5 @@ vPortYield:
 
 align 4
 xPortStartScheduler:
-    ; TODO: Initialize timer here
     RESTORE_CONTEXT            ; Restore context of the first task
     ret                        ; "Return" to the task function

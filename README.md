@@ -25,16 +25,15 @@ Yes,  your  Teams Meeting will influence your FreeRTOS  simulation  in  a  very
 significant way.
 
 The  solution  used  in  this  proof  of  concept  is  to  create  a  so-called
-```instruction_callback()``` function. Calls to this function are then inserted
-into     the    code    under    test    at     periodic     intervals.     The
-```instruction_callback()``` function can then essentially  be seen as the "CPU
-clock".  From this we can then derive a clock frequency for our tick timer, and
-call ```vPortTickISR()``` after  making  the  appropriate  number of divisions.
+```InstructionCallback()``` function.  Calls to this function are then inserted
+into the code under test at periodic intervals. The ```InstructionCallback()```
+function can then essentially be seen as the "CPU clock". From this we can then
+derive a clock frequency for  our  tick  timer,  and  call ```vPortTickISR()```
+after making the appropriate number of divisions.
 
-Because ```instruction_callback()```  can  be  inserted  anywhere,  a  wrapper,
-```instruction_callack_invisible()```,  needed to be written in assembly  which
-makes sure to  push  and  restore  all  state,  so  that  we  don't clobber any
-registers.
+Because  ```InstructionCallback()```  can  be  inserted  anywhere,  a  wrapper,
+```InstructionCallback_Safe()```, needed to be written in assembly which  makes
+sure to  push  and  restore  all state, so that we don't clobber any registers.
 
 ## How to build
 

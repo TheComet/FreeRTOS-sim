@@ -1,6 +1,7 @@
 #ifndef PORTMACRO_H
 #define PORTMACRO_H
 
+#include "Hardware/Hardware.h"
 #include <stdint.h>
 
 /*-----------------------------------------------------------
@@ -34,14 +35,28 @@ typedef uint32_t                    TickType_t;
 #define portTICK_PERIOD_MS          ((TickType_t) 1000 / configTICK_RATE_HZ )
 #define portMAX_DELAY               ((TickType_t)0xffffffffUL)
 
-#define portDISABLE_INTERRUPTS()    do {} while( 0 )
-#define portENABLE_INTERRUPTS()     do {} while( 0 )
+#define portDISABLE_INTERRUPTS()    IRQ.GIE = 0
+#define portENABLE_INTERRUPTS()     IRQ.GIE = 1
 
-/* TODO: These will play an importan role in how instruction_callback() is used  */
-#define portENTER_CRITICAL()        do {} while( 0 )
-#define portEXIT_CRITICAL()         do {} while( 0 )
+extern volatile uint16_t usCriticalNesting;
+
+#define portENTER_CRITICAL()       \
+  do {                             \
+    portDISABLE_INTERRUPTS();      \
+    usCriticalNesting++;           \
+  } while (0)
+
+#define portEXIT_CRITICAL()        \
+  do {                             \
+    if(--usCriticalNesting == 0) { \
+      portENABLE_INTERRUPTS();     \
+    }                              \
+  } while (0)
+
 
 void vPortYield();
+void vPortTickISR();
+
 #define portYIELD()                 vPortYield();
 
 /* Task function macros as described on the FreeRTOS.org WEB site. */

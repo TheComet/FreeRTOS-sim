@@ -3,7 +3,7 @@
 #include <string.h>
 
 static const char *mnemonics[] = {"movl", "movq", "jmp", NULL};
-static const char *patch = "        call instruction_callback_invisible\n";
+static const char *patch = "        call InstructionCallback_Safe\n";
 
 struct Args {
   const char *inputFileName;
@@ -71,6 +71,7 @@ static int ProcessFile(FILE *in, FILE *out) {
   while ((c = getc(in)) != EOF) {
     if (p - line + 1 == sizeof(line)) {
       if (fwrite(line, p - line, 1, out) != 1) {
+        fprintf(stderr, "Error: Failed to write output: %s\n", strerror(errno));
         return -1;
       }
       fprintf(stderr, "Warning: Line was too long for line buffer\n");
@@ -83,17 +84,20 @@ static int ProcessFile(FILE *in, FILE *out) {
     if (c == '\n') {
       if (FindMnemonic(line, p - line)) {
         if (fwrite(patch, strlen(patch), 1, out) != 1) {
+          fprintf(stderr, "Error: Failed to write output: %s\n", strerror(errno));
           return -1;
         }
       }
       if (fwrite(line, p - line, 1, out) != 1) {
+        fprintf(stderr, "Error: Failed to write output: %s\n", strerror(errno));
         return -1;
       }
       p = line;
     }
   }
 
-  if (fwrite(line, p - line, 1, out) != 1) {
+  if (p != line && fwrite(line, p - line, 1, out) != 1) {
+    fprintf(stderr, "Error: Failed to write output: %s\n", strerror(errno));
     return -1;
   }
 

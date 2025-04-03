@@ -1,3 +1,4 @@
 /build*
 /.nvim
 /compile_commands.json
+/.cache

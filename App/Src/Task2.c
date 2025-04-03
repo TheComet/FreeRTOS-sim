@@ -7,6 +7,6 @@ int y;
 portTASK_FUNCTION(AppTask2, pvParameters) {
   while (1) {
     y++;
-    printf("Task2\n");
+    printf("Task 2: %d\n", y);
   }
 }
