@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 
+static const char *mnemonics[] = {"movl", "movq", "jmp", NULL};
+static const char *patch = "        call instruction_callback_invisible\n";
+
 struct Args {
   const char *inputFileName;
   const char *outputFileName;
@@ -47,7 +50,6 @@ static int ParseArgs(int argc, char *argv[], struct Args *args) {
 }
 
 static int FindMnemonic(const char *line, int len) {
-  static const char *mnemonics[] = {"movl", "movq", "jmp", NULL};
   for (const char **mnemonic = mnemonics; *mnemonic; ++mnemonic) {
     const char *needle = *mnemonic;
     const char *haystack = line;
@@ -80,8 +82,6 @@ static int ProcessFile(FILE *in, FILE *out) {
 
     if (c == '\n') {
       if (FindMnemonic(line, p - line)) {
-        static const char *patch =
-            "        call instruction_callback_invisible\n";
         if (fwrite(patch, strlen(patch), 1, out) != 1) {
           return -1;
         }

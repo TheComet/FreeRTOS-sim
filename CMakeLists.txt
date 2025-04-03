@@ -14,8 +14,8 @@ target_include_directories (Mobius
     "FreeRTOS/include"
     "App/Include")
 
-include (PatchInstructionCallback)
-patch_instruction_callback (Mobius Mobius_OBJS)
+include (InstrumentInstructionCallback)
+instrument_instruction_callback (Mobius Mobius_OBJS)
 
 add_executable (FreeRTOS-Sim
   "FreeRTOS/croutine.c"
