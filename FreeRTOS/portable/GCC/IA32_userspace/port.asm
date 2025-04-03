@@ -22,6 +22,7 @@ global xPortStartScheduler
 %endmacro
 
 section .text
+
 align 4
 vPortTickISR:
     call   xTaskIncrementTick  ; Increment tick count and check for task switch
@@ -34,10 +35,10 @@ vPortYield:
     SAVE_CONTEXT               ; Save context of the current task
     call   vTaskSwitchContext  ; Call scheduler
     RESTORE_CONTEXT            ; Restore context of new task
-    ret
+    ret                        ; "Return" to the task function
 
 align 4
 xPortStartScheduler:
     ; TODO: Initialize timer here
     RESTORE_CONTEXT            ; Restore context of the first task
-    ret
+    ret                        ; "Return" to the task function
