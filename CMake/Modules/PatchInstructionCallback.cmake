@@ -1,3 +1,6 @@
+add_executable (PatchInstructionCallback
+  ${CMAKE_CURRENT_LIST_DIR}/patch.c)
+
 function (patch_instruction_callback target out_objs)
   # This is horrible, is there a better way?
   get_target_property (_copts ${target} COMPILE_OPTIONS)
@@ -29,20 +32,12 @@ function (patch_instruction_callback target out_objs)
     set (_source "${PROJECT_SOURCE_DIR}/${_source}")
     set (_outdir "${PROJECT_BINARY_DIR}/patched")
     set (_outfile "${_outdir}/${_filename}")
-    set (_script "${CMAKE_CURRENT_LIST_DIR}/CMake/Modules/patch.py")
     add_custom_command (
-      DEPENDS ${_source} ${_script}
-      OUTPUT ${_outfile}.s
-      COMMAND ${CMAKE_COMMAND} -E make_directory ${_outdir}
-      COMMAND ${CMAKE_C_COMPILER} ${_cflags} -S ${_source} -o ${_outfile}.s
-      COMMAND python3 ${_script} ${_outfile}.s
-      COMMENT "Patching instruction callbacks into ${_source}"
-      VERBATIM)
-    add_custom_command (
-      DEPENDS ${_outfile}.s
+      DEPENDS ${_source} PatchInstructionCallback
       OUTPUT ${_outfile}.o
-      COMMAND ${CMAKE_C_COMPILER} ${_cflags} -c ${_outfile}.s -o ${_outfile}.o
-      COMMENT "Assembling ${_outfile}.s"
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${_outdir}
+      COMMAND ${CMAKE_C_COMPILER} ${_cflags} -S -o- ${_source} | $<TARGET_FILE:PatchInstructionCallback> | ${CMAKE_C_COMPILER} ${_cflags} -o ${_outfile}.o -xassembler -c -
+      COMMENT "Patching instruction callbacks into ${_source}"
       VERBATIM)
     list (APPEND ${out_objs} ${_outfile}.o)
   endforeach ()
