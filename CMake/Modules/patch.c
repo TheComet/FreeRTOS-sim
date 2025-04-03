@@ -47,10 +47,7 @@ static int ParseArgs(int argc, char *argv[], struct Args *args) {
 }
 
 static int FindMnemonic(const char *line, int len) {
-  //  static const char *mnemonics[] = {"movl", "movq", "jmp",  "addl",
-  //                                    "subl", "addq", "subq", "pushl",
-  //                                    "call", "leaq", NULL};
-  static const char *mnemonics[] = {"movl", "jmp", NULL};
+  static const char *mnemonics[] = {"movl", "movq", "jmp", NULL};
   for (const char **mnemonic = mnemonics; *mnemonic; ++mnemonic) {
     const char *needle = *mnemonic;
     const char *haystack = line;

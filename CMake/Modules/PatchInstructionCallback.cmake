@@ -36,7 +36,9 @@ function (patch_instruction_callback target out_objs)
       DEPENDS ${_source} PatchInstructionCallback
       OUTPUT ${_outfile}.o
       COMMAND ${CMAKE_COMMAND} -E make_directory ${_outdir}
-      COMMAND ${CMAKE_C_COMPILER} ${_cflags} -S -o- ${_source} | $<TARGET_FILE:PatchInstructionCallback> | ${CMAKE_C_COMPILER} ${_cflags} -o ${_outfile}.o -xassembler -c -
+      COMMAND ${CMAKE_C_COMPILER} ${_cflags} -S -o- ${_source}
+        | $<TARGET_FILE:PatchInstructionCallback>
+        | ${CMAKE_C_COMPILER} ${_cflags} -o ${_outfile}.o -xassembler -c -
       COMMENT "Patching instruction callbacks into ${_source}"
       VERBATIM)
     list (APPEND ${out_objs} ${_outfile}.o)
