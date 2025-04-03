@@ -1,13 +1,5 @@
 #include "FreeRTOS.h"
-#include "task.h"
-#include <unistd.h>
-
-typedef void TCB_t;
-extern volatile TCB_t *volatile pxCurrentTCB;
-
-void vPortTickISR(void);
-void vPortYield(void);
-void vPortStartScheduler(void);
+#include "portable.h"
 
 StackType_t *pxPortInitialiseStack(StackType_t *pxTopOfStack,
                                    TaskFunction_t pxCode, void *pvParameters) {
@@ -35,4 +27,5 @@ StackType_t *pxPortInitialiseStack(StackType_t *pxTopOfStack,
   return pxTopOfStack;
 }
 
+#include <unistd.h>
 void vPortEndScheduler(void) { _exit(1); }

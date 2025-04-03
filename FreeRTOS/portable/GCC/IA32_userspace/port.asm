@@ -24,13 +24,9 @@ global xPortStartScheduler
 section .text
 align 4
 vPortTickISR:
-    SAVE_CONTEXT               ; Save context of the current task
     call   xTaskIncrementTick  ; Increment tick count and check for task switch
     test   eax, eax            ; Was a task switch requested?
-    je .skip_context_switch
-    call   vTaskSwitchContext  ; Call scheduler
-.skip_context_switch:
-    RESTORE_CONTEXT            ; Restore context of new task
+    jne    vPortYield
     ret
 
 align 4
