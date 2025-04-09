@@ -1,20 +1,25 @@
 #include "FreeRTOS.h"
+#include "Hardware/Gpio.h"
 #include "task.h"
+#include "timers.h"
 #include <stdio.h>
-#include <string.h>
 
-int x;
+void MyTimer(TimerHandle_t xTimer) { printf("Timer\n"); }
 
-static int GetStrLen(const char *s) { return strlen(s) + 5; }
-
-static void DoWork(void *param, const char *s) {
-  int l = GetStrLen(s);
+static int DoWork(int x) {
+  int y = x * 2;
+  y = y % 50;
+  return y * 5;
 }
 
 portTASK_FUNCTION(AppTask1, pvParameters) {
+  TimerHandle_t handle = xTimerCreate("MyTimer", 1, pdTRUE, NULL, MyTimer);
+  xTimerStart(handle, portMAX_DELAY);
+
+  static int x;
   while (1) {
     x++;
-    DoWork(pvParameters, "haha");
+    DoWork(x);
     printf("Task 1: %d\n", x);
   }
 }

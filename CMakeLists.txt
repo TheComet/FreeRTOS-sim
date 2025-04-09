@@ -6,8 +6,8 @@ project (FreeRTOS-Sim
 list (APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake/Modules")
 
 add_library (Hardware OBJECT
-  "Hardware/Src/Hardware.c"
-  "Hardware/Include/Hardware/Hardware.h")
+  "Hardware/Src/Interrupts.c"
+  "Hardware/Src/Gpio.c")
 target_include_directories (Hardware PUBLIC "Hardware/Include")
 
 add_library (FreeRTOS OBJECT

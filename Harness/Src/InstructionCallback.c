@@ -1,5 +1,5 @@
 #include "FreeRTOS.h"
-#include "Hardware/Hardware.h"
+#include "Hardware/Interrupts.h"
 
 static void ProcessPendingInterrupts(void) {
   if (IRQ.SYSTICK_IF) {

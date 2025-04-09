@@ -26,6 +26,13 @@ StackType_t *pxPortInitialiseStack(StackType_t *pxTopOfStack,
   /* eflags */
   *--pxTopOfStack = 0x00000000;
 
+  /* Initial IRQ and nesting counters -- Interrupts are expected to be enabled
+   * as soon as the task begins, this is why we set the GIE=1 flag here. */
+  struct IRQ initialIRQ = {.GIE = 1};
+  uint16_t initialCriticalNesting = 0;
+  *--pxTopOfStack = *(uint32_t *)&initialIRQ;
+  *--pxTopOfStack = initialCriticalNesting;
+
   return pxTopOfStack;
 }
 

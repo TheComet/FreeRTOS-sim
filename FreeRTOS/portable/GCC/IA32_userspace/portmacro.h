@@ -1,7 +1,6 @@
 #ifndef PORTMACRO_H
 #define PORTMACRO_H
 
-#include "Hardware/Hardware.h"
 #include <stdint.h>
 
 /*-----------------------------------------------------------
