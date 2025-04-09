@@ -5,12 +5,12 @@ project (FreeRTOS-Sim
 
 list (APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake/Modules")
 
-add_library (Hardware OBJECT
+add_library (Hardware STATIC
   "Hardware/Src/Interrupts.c"
   "Hardware/Src/Gpio.c")
 target_include_directories (Hardware PUBLIC "Hardware/Include")
 
-add_library (FreeRTOS OBJECT
+add_library (FreeRTOS STATIC
   "FreeRTOS/croutine.c"
   "FreeRTOS/event_groups.c"
   "FreeRTOS/list.c"
@@ -32,30 +32,25 @@ target_include_directories (FreeRTOS
 target_link_libraries (FreeRTOS PUBLIC Hardware)
 target_link_options (FreeRTOS PRIVATE -z noexecstack)
 
-add_library (App OBJECT
+add_library (App STATIC
   "App/Src/Init.c"
   "App/Src/Task1.c"
   "App/Src/Task2.c")
-target_include_directories (App
-  PRIVATE
-    "Hardware/Include"
-    "FreeRTOS/portable/GCC/IA32_userspace"
-    "FreeRTOS/include"
-    "App/Include")
+target_include_directories (App PUBLIC
+  "App/Include")
+target_link_libraries (App PUBLIC
+  FreeRTOS)
 
 include (InstrumentInstructionCallback)
-instrument_instruction_callback (App App_INSTRUMENTED_OBJS)
+instrument_instruction_callback (App)
 
 add_executable (Harness
-  ${App_INSTRUMENTED_OBJS}
-  $<TARGET_OBJECTS:FreeRTOS>
-  $<TARGET_OBJECTS:Hardware>
   "Harness/Src/InstructionCallback.c"
   "Harness/Src/InstructionCallback.asm"
   "Harness/Src/main.c")
-target_include_directories (Harness
-  PRIVATE
-    $<TARGET_PROPERTY:Hardware,INCLUDE_DIRECTORIES>
-    $<TARGET_PROPERTY:App,INCLUDE_DIRECTORIES>)
+target_link_libraries (Harness PRIVATE
+  FreeRTOS
+  Hardware
+  App)
 target_link_options (Harness PRIVATE -z noexecstack)
 
