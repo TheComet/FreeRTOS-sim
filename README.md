@@ -42,6 +42,6 @@ You may need to ```sudo apt install nasm``` first.
 ```sh
 cmake --preset default
 cmake --build build-Debug/
-./build-Debug/FreeRTOS-Sim
+./build-Debug/Harness
 ```
 
