@@ -3,10 +3,19 @@
 # CMake seems to always generate the compiler command such that the last 4
 # arguments are "-o <output> -c <input>"
 
-IN="${@: -1:1}"              # Extract "<input>"
-OUT="${@: -3:1}"             # Extract "<output>"
-COMPILE="${@:1:$(($#-4))}"   # Extract all arguments before the last 4
+eval "IN=\${$#}"              # Extract "<input>"
+eval "OUT=\${$(($# - 2))}"    # Extract "<output>"
 
-$COMPILE -S -o- "$IN" \
+# Rebuild COMPILE command with last 4 args stripped away
+i=1
+COMPILE=""
+while [ $i -le $(($# - 4)) ]; do
+    eval "arg=\${$i}"
+    COMPILE="$COMPILE \"$arg\""
+    i=$(($i + 1))
+done
+
+eval "$COMPILE -S -o- \"$IN\" \
     | ./InstrumentInstructionCallback \
-    | $COMPILE -o "$OUT" -xassembler -c -
+    | $COMPILE -o \"$OUT\" -xassembler -c -"
+
