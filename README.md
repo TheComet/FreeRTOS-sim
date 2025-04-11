@@ -42,6 +42,12 @@ You may need to ```sudo apt install nasm``` first.
 ```sh
 cmake --preset default
 cmake --build build-Debug/
-./build-Debug/Harness
+./build-Debug/Simulation
 ```
 
+The simulation will run as  fast  as  possible.  If you want to run it in "real
+time", you can start it with the ```--realtime``` flag:
+
+```sh
+./build-Debug/Simulation --realtime
+```

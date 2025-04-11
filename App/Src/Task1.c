@@ -4,7 +4,10 @@
 #include "timers.h"
 #include <stdio.h>
 
-void MyTimer(TimerHandle_t xTimer) { printf("Timer\n"); }
+void MyTimer(TimerHandle_t xTimer) {
+  static int counter;
+  printf("Timer %d\n", counter++);
+}
 
 static int DoWork(int x) {
   int y = x * 2;
@@ -13,13 +16,13 @@ static int DoWork(int x) {
 }
 
 portTASK_FUNCTION(AppTask1, pvParameters) {
-  TimerHandle_t handle = xTimerCreate("MyTimer", 1, pdTRUE, NULL, MyTimer);
+  TimerHandle_t handle =
+      xTimerCreate("MyTimer", pdMS_TO_TICKS(500), pdTRUE, NULL, MyTimer);
   xTimerStart(handle, portMAX_DELAY);
 
   static int x;
   while (1) {
     x++;
     DoWork(x);
-    printf("Task 1: %d\n", x);
   }
 }

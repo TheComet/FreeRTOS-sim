@@ -10,16 +10,10 @@
       "name": "default",
       "displayName": "Default Config",
       "binaryDir": "${sourceDir}/build-Debug",
-      "toolchainFile": "${sourceDir}/x86-gnu-linux.cmake",
+      "toolchainFile": "${sourceDir}/CMake/Toolchains/x86-gnu-linux.cmake",
       "cacheVariables": {
-        "CMAKE_EXPORT_COMPILE_COMMANDS": {
-          "type": "BOOL",
-          "value": "ON"
-        },
-        "CMAKE_BUILD_TYPE": {
-          "type": "STRING",
-          "value": "Debug"
-        }
+        "CMAKE_EXPORT_COMPILE_COMMANDS": true,
+        "CMAKE_BUILD_TYPE": "Debug"
       }
     }
   ],

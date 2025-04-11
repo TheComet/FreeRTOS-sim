@@ -44,13 +44,16 @@ target_link_libraries (App PUBLIC
 include (InstrumentInstructionCallback)
 instrument_instruction_callback (App)
 
-add_executable (Harness
-  "Harness/Src/InstructionCallback.c"
-  "Harness/Src/InstructionCallback.asm"
-  "Harness/Src/main.c")
-target_link_libraries (Harness PRIVATE
+add_executable (Simulation
+  "Simulation/Src/InstructionCallback.c"
+  "Simulation/Src/InstructionCallback.asm"
+  "Simulation/Src/Tick_posix.c"
+  "Simulation/Src/main.c")
+target_include_directories (Simulation PRIVATE
+  "Simulation/Include")
+target_link_libraries (Simulation PRIVATE
   FreeRTOS
   Hardware
   App)
-target_link_options (Harness PRIVATE -z noexecstack)
+target_link_options (Simulation PRIVATE -z noexecstack)
 
