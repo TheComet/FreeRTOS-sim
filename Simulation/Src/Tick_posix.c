@@ -35,11 +35,13 @@ int Tick_Advance(struct Tick *t) {
   return 0;
 }
 
-int Tick_Wait(struct Tick *t) {
+int Tick_Wait(struct Tick *t) { return Tick_WaitFor(t, 1); }
+
+int Tick_WaitFor(struct Tick *t, int ticks) {
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC, &ts);
   uint64_t now = timespec_to_ns(&ts);
-  uint64_t wait_until = t->last + t->interval;
+  uint64_t wait_until = t->last + t->interval * ticks;
 
   if (now > wait_until) {
     t->last = wait_until;

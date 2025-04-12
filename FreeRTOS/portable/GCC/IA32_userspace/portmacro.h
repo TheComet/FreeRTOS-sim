@@ -37,26 +37,18 @@ typedef uint32_t                    TickType_t;
 #define portDISABLE_INTERRUPTS()    IRQ.GIE = 0
 #define portENABLE_INTERRUPTS()     IRQ.GIE = 1
 
-extern volatile uint16_t usCriticalNesting;
+#define portCRITICAL_NESTING_IN_TCB 1
+#define portENTER_CRITICAL() vTaskEnterCritical()
+#define portEXIT_CRITICAL() vTaskExitCritical()
 
-#define portENTER_CRITICAL()       \
-  do {                             \
-    portDISABLE_INTERRUPTS();      \
-    usCriticalNesting++;           \
-  } while (0)
-
-#define portEXIT_CRITICAL()        \
-  do {                             \
-    if(--usCriticalNesting == 0) { \
-      portENABLE_INTERRUPTS();     \
-    }                              \
-  } while (0)
-
-
+/* These are implemented in port.asm */
 void vPortYield();
 void vPortTickISR();
-
 #define portYIELD()                 vPortYield();
+
+void vPortSleep( TickType_t xExpectedIdleTime );
+#define portSUPPRESS_TICKS_AND_SLEEP( xExpectedIdleTime ) \
+    vPortSleep( xExpectedIdleTime )
 
 /* Task function macros as described on the FreeRTOS.org WEB site. */
 #define portTASK_FUNCTION_PROTO( vFunction, pvParameters ) \

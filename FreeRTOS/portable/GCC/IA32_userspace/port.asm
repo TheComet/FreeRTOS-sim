@@ -1,7 +1,6 @@
 extern vTaskSwitchContext
 extern xTaskIncrementTick
 extern pxCurrentTCB
-extern usCriticalNesting
 extern IRQ
 
 global vPortTickISR
@@ -14,10 +13,8 @@ global xPortStartScheduler
     pusha   ; eax, ecx, edx, ebx, esp, ebp, esi, edi
     pushfd  ; eflags register
 
-    ; Save critical section state. This includes interrupt flags and nesting counter
-    mov    eax, [IRQ]               ; Save Interrupt flags
-    push   eax
-    mov    eax, [usCriticalNesting] ; Save nesting counter
+    ; Save interrupt flags
+    mov    eax, [IRQ]
     push   eax
 
     ; Update TCB with our stack pointer: *(*TCB).pxTopOfStack = esp
@@ -30,11 +27,9 @@ global xPortStartScheduler
     mov    eax, [pxCurrentTCB]
     mov    esp, [eax]
 
-    ; Restore critical section state. This includes interrupt flags and nesting counter
+    ; Restore interrupt flags
     pop    eax
-    mov    [usCriticalNesting], eax ; Restore nesting counter
-    pop    eax
-    mov    [IRQ], eax          ; Restore interrupt flags
+    mov    [IRQ], eax
 
     ; Restore all general-purpose registers. Note that the stack pointer is also
     ; included in "popa"

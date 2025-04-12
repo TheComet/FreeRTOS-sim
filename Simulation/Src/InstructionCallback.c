@@ -1,6 +1,7 @@
 #include "FreeRTOS.h"
 #include "Hardware/Interrupts.h"
 #include "Simulation/Tick.h"
+#include "task.h"
 #include <stdio.h>
 
 static struct Tick tick;
@@ -30,14 +31,13 @@ static void ProcessPendingInterrupts(void) {
 
 void InstructionCallback(void) {
   /* Update clock tree */
-  static int mclk;
-  static int aclk;
-  if (mclk++ % 8 == 0) {
-    if (aclk++ % 8 == 0) {
-      IRQ.SYSTICK_IF = 1;
-      if (realtimeMode) {
-        SynchronizeWithSystemTime();
-      }
+  static int hclk;
+  if (hclk++ == configCPU_CLOCK_HZ / configTICK_RATE_HZ) {
+    hclk = 0;
+    IRQ.SYSTICK_IF = 1;
+
+    if (realtimeMode) {
+      SynchronizeWithSystemTime();
     }
   }
 
@@ -49,3 +49,34 @@ void InstructionCallback(void) {
     ProcessPendingInterrupts();
   }
 }
+
+#if configUSE_TICKLESS_IDLE == 1
+void vPortSleep(TickType_t xExpectedIdleTime) {
+  /* Ensure it is still ok to enter the sleep mode. */
+  switch (eTaskConfirmSleepModeStatus()) {
+  case eAbortSleep: {
+    /* A task has been moved out of the Blocked state since this macro was
+    executed, or a context switch is being held pending.  Do not enter a
+    sleep state. */
+    break;
+  }
+
+  case eStandardSleep: {
+    /* We can fast forward by the number of ticks passed in to this function */
+    // TODO: Run simulation here
+    if (realtimeMode) {
+      Tick_WaitFor(&tick, xExpectedIdleTime);
+    }
+    vTaskStepTick(xExpectedIdleTime);
+    break;
+  }
+
+  case eNoTasksWaitingTimeout: {
+    /* All tasks are in the blocked state and we can fast forward indefinitely.
+     * We only return if an external interrupt occurs. */
+    // TODO: Run simulation here until it causes an external interrupt
+    break;
+  }
+  }
+}
+#endif /* configUSE_TICKLESS_IDLE */

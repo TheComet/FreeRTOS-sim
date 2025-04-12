@@ -40,4 +40,6 @@ int Tick_Advance(struct Tick *t);
  */
 int Tick_Wait(struct Tick *t);
 
+int Tick_WaitFor(struct Tick *t, int ticks);
+
 void Tick_Skip(struct Tick *t);
