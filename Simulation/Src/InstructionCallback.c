@@ -2,20 +2,22 @@
 #include "Hardware/Interrupts.h"
 #include "Simulation/Tick.h"
 #include "task.h"
-#include <stdio.h>
 
 static struct Tick tick;
 int realtimeMode = 0;
 
-void InstructionCallback_EnableRealTimeMode(void) {
-  Tick_Config(&tick, 1000);
-  realtimeMode = 1;
-}
-
-static void ProcessPendingInterrupts(void) {
+static int ProcessPendingInterrupts(void) {
+  int interruptHasOccurred = IRQ.SYSTICK_IF;
   if (IRQ.SYSTICK_IF) {
     IRQ.SYSTICK_IF = 0;
     vPortTickISR();
+  }
+  return interruptHasOccurred;
+}
+
+static void StepSimulation(void) {
+  if (realtimeMode) {
+    Tick_Wait(&tick);
   }
 }
 
@@ -25,10 +27,7 @@ void InstructionCallback(void) {
   if (hclk++ == configCPU_CLOCK_HZ / configTICK_RATE_HZ) {
     hclk = 0;
     IRQ.SYSTICK_IF = 1;
-
-    if (realtimeMode) {
-      Tick_Wait(&tick);
-    }
+    StepSimulation();
   }
 
   /* The instruction callback may be called from an interrupt handler, or from
@@ -40,9 +39,13 @@ void InstructionCallback(void) {
   }
 }
 
+void InstructionCallback_EnableRealTimeMode(void) {
+  Tick_Config(&tick, 1000);
+  realtimeMode = 1;
+}
+
 #if configUSE_TICKLESS_IDLE == 1
 void vPortSleep(TickType_t xExpectedIdleTime) {
-  /* Ensure it is still ok to enter the sleep mode. */
   switch (eTaskConfirmSleepModeStatus()) {
   case eAbortSleep: {
     /* A task has been moved out of the Blocked state since this macro was
@@ -51,20 +54,20 @@ void vPortSleep(TickType_t xExpectedIdleTime) {
     break;
   }
 
-  case eStandardSleep: {
-    /* We can fast forward by the number of ticks passed in to this function */
-    // TODO: Run simulation here
-    if (realtimeMode) {
-      Tick_WaitFor(&tick, xExpectedIdleTime);
-    }
-    vTaskStepTick(xExpectedIdleTime);
-    break;
-  }
-
-  case eNoTasksWaitingTimeout: {
     /* All tasks are in the blocked state and we can fast forward indefinitely.
      * We only return if an external interrupt occurs. */
-    // TODO: Run simulation here until it causes an external interrupt
+  case eNoTasksWaitingTimeout:
+    xExpectedIdleTime = portMAX_DELAY;
+    /* fallthrough */
+  case eStandardSleep: {
+    /* We can fast forward up to the number of ticks passed in to this function.
+     * We may have to stop earlier if the simulation causes an external
+     * interrupt. */
+    TickType_t i;
+    for (i = 0; !ProcessPendingInterrupts() && i < xExpectedIdleTime; i++) {
+      StepSimulation();
+    }
+    vTaskStepTick(i);
     break;
   }
   }
