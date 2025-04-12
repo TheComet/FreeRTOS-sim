@@ -2,11 +2,12 @@
 set (CMAKE_SYSTEM_NAME Linux)
 
 # which compilers to use for C and C++
-set (CMAKE_C_COMPILER gcc)
-set (CMAKE_C_FLAGS -m32)
 set (CMAKE_CXX_COMPILER g++)
+set (CMAKE_C_COMPILER gcc)
+set (CMAKE_ASM_COMPILER gcc)
 set (CMAKE_CXX_FLAGS -m32)
-set (CMAKE_ASM_NASM_COMPILER nasm)
+set (CMAKE_C_FLAGS -m32)
+set (CMAKE_ASM_FLAGS -m32)
 
 # here is the target environment located
 #set (CMAKE_FIND_ROOT_PATH   /usr/i486-linux-gnu )

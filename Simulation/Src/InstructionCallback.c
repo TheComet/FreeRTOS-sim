@@ -12,16 +12,6 @@ void InstructionCallback_EnableRealTimeMode(void) {
   realtimeMode = 1;
 }
 
-static void SynchronizeWithSystemTime(void) {
-  int lag = Tick_Wait(&tick);
-  if (lag > 0) {
-    fprintf(stderr, "Simulation is lagging! %d ticks behind\n", lag);
-  }
-  if (lag > 1000 /* 1 second */) {
-    Tick_Skip(&tick);
-  }
-}
-
 static void ProcessPendingInterrupts(void) {
   if (IRQ.SYSTICK_IF) {
     IRQ.SYSTICK_IF = 0;
@@ -37,7 +27,7 @@ void InstructionCallback(void) {
     IRQ.SYSTICK_IF = 1;
 
     if (realtimeMode) {
-      SynchronizeWithSystemTime();
+      Tick_Wait(&tick);
     }
   }
 

@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.24)
 
 project (FreeRTOS-Sim
-  LANGUAGES C ASM_NASM)
+  LANGUAGES C ASM)
 
 list (APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake/Modules")
 
@@ -20,7 +20,7 @@ add_library (FreeRTOS STATIC
   "FreeRTOS/timers.c"
 
   "FreeRTOS/portable/GCC/IA32_userspace/port.c"
-  "FreeRTOS/portable/GCC/IA32_userspace/port.asm"
+  "FreeRTOS/portable/GCC/IA32_userspace/port.s"
 
   "FreeRTOS/portable/MemMang/heap_4.c")
 target_include_directories (FreeRTOS
@@ -30,7 +30,6 @@ target_include_directories (FreeRTOS
   PRIVATE
     "App/Include")
 target_link_libraries (FreeRTOS PUBLIC Hardware)
-target_link_options (FreeRTOS PRIVATE -z noexecstack)
 
 add_library (App STATIC
   "App/Src/Init.c"
@@ -46,7 +45,7 @@ instrument_instruction_callback (App)
 
 add_executable (Simulation
   "Simulation/Src/InstructionCallback.c"
-  "Simulation/Src/InstructionCallback.asm"
+  "Simulation/Src/InstructionCallback.s"
   "Simulation/Src/Tick_posix.c"
   "Simulation/Src/main.c")
 target_include_directories (Simulation PRIVATE
@@ -55,5 +54,3 @@ target_link_libraries (Simulation PRIVATE
   FreeRTOS
   Hardware
   App)
-target_link_options (Simulation PRIVATE -z noexecstack)
-
