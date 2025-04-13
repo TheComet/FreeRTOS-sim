@@ -1,8 +1,7 @@
 #include "FreeRTOS.h"
 #include "portable.h"
+#include "queue.h"
 #include "task.h"
-
-volatile uint16_t usCriticalNesting = 0;
 
 StackType_t *pxPortInitialiseStack(StackType_t *pxTopOfStack,
                                    TaskFunction_t pxCode, void *pvParameters) {
@@ -29,11 +28,35 @@ StackType_t *pxPortInitialiseStack(StackType_t *pxTopOfStack,
 
   /* Need to store interrupt state because FreeRTOS can yield in critical
    * sections */
-  struct IRQ initialIRQ = {.GIE = 1};
-  *--pxTopOfStack = *(uint32_t *)&initialIRQ;
+  struct SR initialSR = {.GIE = 1};
+  *--pxTopOfStack = *(uint32_t *)&initialSR;
 
   return pxTopOfStack;
 }
 
-#include <unistd.h>
-void vPortEndScheduler(void) { _exit(1); }
+/* There's no nicer way to end the scheduler from the simulation.
+ * vTaskEndScheduler() must be called from a task context, and it cannot be
+ * called from the idle task either... */
+static QueueHandle_t endSchedulerQueue;
+portTASK_FUNCTION(EndSchedulerTask, pvParameters) {
+  char buf;
+  (void)pvParameters;
+  endSchedulerQueue = xQueueCreate(1, sizeof(buf));
+  xQueueReceive(endSchedulerQueue, &buf, portMAX_DELAY);
+  vQueueDelete(endSchedulerQueue);
+  endSchedulerQueue = NULL;
+  vTaskEndScheduler();
+  configASSERT(0);
+}
+
+void vPortEndSchedulerFromISR(void) {
+  char buf;
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  xQueueSendFromISR(endSchedulerQueue, &buf, &xHigherPriorityTaskWoken);
+  portYIELD_FROM_ISR();
+}
+
+void vPortCreateEndSchedulerTask(void) {
+  xTaskCreate(EndSchedulerTask, "EndSched", configMINIMAL_STACK_SIZE, NULL,
+              configMAX_PRIORITIES - 1, NULL);
+}

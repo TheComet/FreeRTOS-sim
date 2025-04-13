@@ -20,7 +20,7 @@ portTASK_FUNCTION(AppTask1, pvParameters) {
       xTimerCreate("MyTimer", pdMS_TO_TICKS(500), pdTRUE, NULL, MyTimer);
   xTimerStart(handle, portMAX_DELAY);
 
-  static int x;
+  int x = 0;
   while (1) {
     x++;
     DoWork(x);

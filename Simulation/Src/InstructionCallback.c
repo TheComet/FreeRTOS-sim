@@ -1,19 +1,30 @@
-#include "FreeRTOS.h"
+#include "Simulation/InstructionCallback.h"
 #include "Hardware/Interrupts.h"
+#include "Simulation/StackPivot.h"
 #include "Simulation/Tick.h"
+
+/* FreeRTOS */
+#include "FreeRTOS.h"
+#include "queue.h"
 #include "task.h"
 
 static struct Tick tick;
-int realtimeMode = 0;
+static int realtimeMode = 0;
 
 static int ProcessPendingInterrupts(void) {
-  int interruptHasOccurred = IRQ.SYSTICK_IF;
+  int interruptHasOccurred = IRQ.SYSTICK_IF | IRQ.ENDSCHED_IF;
   if (IRQ.SYSTICK_IF) {
     IRQ.SYSTICK_IF = 0;
     vPortTickISR();
   }
+  if (IRQ.ENDSCHED_IF) {
+    IRQ.ENDSCHED_IF = 0;
+    vPortEndSchedulerFromISR();
+  }
   return interruptHasOccurred;
 }
+
+void EndSimulation(void) { IRQ.ENDSCHED_IF = 1; }
 
 static void StepSimulation(void) {
   if (realtimeMode) {
@@ -27,14 +38,14 @@ void InstructionCallback(void) {
   if (hclk++ == configCPU_CLOCK_HZ / configTICK_RATE_HZ) {
     hclk = 0;
     IRQ.SYSTICK_IF = 1;
-    StepSimulation();
+    StackPivot_Call(StepSimulation);
   }
 
   /* The instruction callback may be called from an interrupt handler, or from
    * within a critical section. For this reason we set the interrupt flags in
    * the clock tree update, and call vPortTickISR() only when interrupts are
    * enabled. */
-  if (IRQ.GIE) {
+  if (SR.GIE) {
     ProcessPendingInterrupts();
   }
 }
@@ -65,7 +76,7 @@ void vPortSleep(TickType_t xExpectedIdleTime) {
      * interrupt. */
     TickType_t i;
     for (i = 0; !ProcessPendingInterrupts() && i < xExpectedIdleTime; i++) {
-      StepSimulation();
+      StackPivot_Call(StepSimulation);
     }
     vTaskStepTick(i);
     break;

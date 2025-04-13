@@ -34,17 +34,22 @@ typedef uint32_t                    TickType_t;
 #define portTICK_PERIOD_MS          ((TickType_t) 1000 / configTICK_RATE_HZ )
 #define portMAX_DELAY               ((TickType_t)0xffffffffUL)
 
-#define portDISABLE_INTERRUPTS()    IRQ.GIE = 0
-#define portENABLE_INTERRUPTS()     IRQ.GIE = 1
+#define portDISABLE_INTERRUPTS()    SR.GIE = 0
+#define portENABLE_INTERRUPTS()     SR.GIE = 1
 
 #define portCRITICAL_NESTING_IN_TCB 1
 #define portENTER_CRITICAL() vTaskEnterCritical()
 #define portEXIT_CRITICAL() vTaskExitCritical()
 
-/* These are implemented in port.asm */
+/* These are implemented in port.s */
 void vPortYield();
 void vPortTickISR();
-#define portYIELD()                 vPortYield();
+#define portYIELD()                 vPortYield()
+#define portYIELD_FROM_ISR()        vPortYield()
+
+/* Functions for ending the scheduler from an ISR (simulation requires this) */
+void vPortCreateEndSchedulerTask(void);
+void vPortEndSchedulerFromISR(void);
 
 void vPortSleep( TickType_t xExpectedIdleTime );
 #define portSUPPRESS_TICKS_AND_SLEEP( xExpectedIdleTime ) \

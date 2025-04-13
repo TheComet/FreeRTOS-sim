@@ -2,9 +2,8 @@
 #include "task.h"
 #include <stdio.h>
 
-int y;
-
 portTASK_FUNCTION(AppTask2, pvParameters) {
+  int y = 0;
   while (1) {
     y++;
     printf("Task2 %d\n", y);

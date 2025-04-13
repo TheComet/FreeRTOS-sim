@@ -12,8 +12,6 @@ void App_Init(void) {
               tskIDLE_PRIORITY + 1, NULL);
 }
 
-void App_Run(void) { vTaskStartScheduler(); }
-
 uint8_t ucHeap[configTOTAL_HEAP_SIZE];
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName) {}
 
