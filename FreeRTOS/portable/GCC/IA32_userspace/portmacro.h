@@ -51,6 +51,8 @@ void vPortTickISR();
 void vPortCreateEndSchedulerTask(void);
 void vPortEndSchedulerFromISR(void);
 
+void vPortCallOnMainStack(void (*)(void));
+
 void vPortSleep( TickType_t xExpectedIdleTime );
 #define portSUPPRESS_TICKS_AND_SLEEP( xExpectedIdleTime ) \
     vPortSleep( xExpectedIdleTime )

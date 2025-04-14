@@ -30,10 +30,5 @@ int main(int argc, char *argv[]) {
   vTaskStartScheduler();
   fprintf(stderr, "Simulation finished.\n");
 
-  fprintf(stderr, "Starting simulation...\n");
-  App_Init();
-  vTaskStartScheduler();
-  fprintf(stderr, "Simulation finished.\n");
-
   return 0;
 }

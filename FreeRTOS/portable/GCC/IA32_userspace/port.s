@@ -15,7 +15,7 @@
   .global vPortYield
   .global xPortStartScheduler
   .global vPortEndScheduler
-  .global StackPivot_Call
+  .global vPortCallOnMainStack
 
 .section .data
   .extern pxCurrentTCB
@@ -91,7 +91,7 @@ vPortEndScheduler:
   popa
   ret
 
-StackPivot_Call:
+vPortCallOnMainStack:
   # Currently on the stack:
   #   0: function to call using said stack
   #   1: return address

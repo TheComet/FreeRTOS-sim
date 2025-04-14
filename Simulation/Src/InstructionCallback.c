@@ -1,6 +1,5 @@
 #include "Simulation/InstructionCallback.h"
 #include "Hardware/Interrupts.h"
-#include "Simulation/StackPivot.h"
 #include "Simulation/Tick.h"
 
 /* FreeRTOS */
@@ -38,7 +37,7 @@ void InstructionCallback(void) {
   if (hclk++ == configCPU_CLOCK_HZ / configTICK_RATE_HZ) {
     hclk = 0;
     IRQ.SYSTICK_IF = 1;
-    StackPivot_Call(StepSimulation);
+    vPortCallOnMainStack(StepSimulation);
   }
 
   /* The instruction callback may be called from an interrupt handler, or from
@@ -76,7 +75,7 @@ void vPortSleep(TickType_t xExpectedIdleTime) {
      * interrupt. */
     TickType_t i;
     for (i = 0; !ProcessPendingInterrupts() && i < xExpectedIdleTime; i++) {
-      StackPivot_Call(StepSimulation);
+      vPortCallOnMainStack(StepSimulation);
     }
     vTaskStepTick(i);
     break;
