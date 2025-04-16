@@ -23,7 +23,7 @@
 #define portBASE_TYPE               long
 
 #define portSTACK_GROWTH            ( -1 )
-#define portBYTE_ALIGNMENT          32
+#define portBYTE_ALIGNMENT          16
 #define portPOINTER_SIZE_TYPE       size_t
 typedef portSTACK_TYPE              StackType_t;
 

@@ -6,6 +6,7 @@
 StackType_t *pxPortInitialiseStack(StackType_t *pxTopOfStack,
                                    TaskFunction_t pxCode, void *pvParameters) {
   /* TaskFunc(void* pvParameters) */
+  pxTopOfStack -= 3; /* Align stack to 16 bytes before call */
   *--pxTopOfStack = (StackType_t)pvParameters; /* Task argument 1 */
   *--pxTopOfStack = 0x00000000;                /* return address to scheduler */
 
