@@ -1,4 +1,4 @@
-# FreeRTOS ported to plain AI32 (x86)
+# FreeRTOS ported to plain IA32 (x86)
 
 This is a proof of concept for running FreeRTOS in userspace on x86. This means:
  - Completely deterministic
