@@ -2,7 +2,7 @@
 
 This is a proof of concept for running FreeRTOS in userspace on x86. This means:
  - Completely deterministic
- - No linux systemcalls (except for ```_exit()```)
+ - No linux systemcalls
  - No dependency on system timers
 
 ## How does it work?
