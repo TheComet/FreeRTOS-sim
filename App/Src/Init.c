@@ -16,4 +16,4 @@ uint8_t ucHeap[configTOTAL_HEAP_SIZE];
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName) {}
 
 void InstructionCallback(void);
-void vApplicationIdleHook(void) { InstructionCallback(); }
+void vApplicationIdleHook(void) {}

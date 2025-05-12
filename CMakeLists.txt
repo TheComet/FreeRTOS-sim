@@ -41,11 +41,10 @@ target_link_libraries (App PUBLIC
   FreeRTOS)
 
 include (InstrumentInstructionCallback)
-instrument_instruction_callback (App)
+instrument_instruction_callback (App "InstructionCallback" 5)
 
 add_executable (Simulation
   "Simulation/Src/InstructionCallback.c"
-  "Simulation/Src/InstructionCallback.s"
   "Simulation/Src/Tick_posix.c"
   "Simulation/Src/main.c")
 target_include_directories (Simulation PRIVATE

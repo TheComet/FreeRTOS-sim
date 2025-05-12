@@ -25,6 +25,6 @@ portTASK_FUNCTION(AppTask1, pvParameters) {
     x++;
     DoWork(x);
     printf("Task1 %d\n", x);
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    //vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
